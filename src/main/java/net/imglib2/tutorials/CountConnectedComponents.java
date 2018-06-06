@@ -1,7 +1,8 @@
 package net.imglib2.tutorials;
 
-import java.io.IOException;
-
+import ij.IJ;
+import ij.ImagePlus;
+import net.imglib2.algorithm.labeling.ConnectedComponents;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -12,20 +13,27 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
 
-import ij.IJ;
-import ij.ImagePlus;
+import java.io.IOException;
 
-public class Sandbox
+public class CountConnectedComponents
 {
 	public static void main( final String[] args ) throws IOException
 	{
-		String path = Sandbox.class.getResource( "/blobs.tif" ).getFile();
+		String path = CountConnectedComponents.class.getResource( "/blobs.tif" ).getFile();
 		final Img< UnsignedByteType > image = openImage( path );
 		// show
 		ImageJFunctions.show( image );
-		// create and show an empty image
-		final Img< IntType > img2 = ArrayImgs.ints( Intervals.dimensionsAsLongArray( image ) );
-		ImageJFunctions.show( img2 );
+		// threshold
+		image.forEach( pixel -> pixel.setInteger( pixel.getInteger() < 127 ? 255 : 0 ) );
+		// connected components
+		Img< IntType > output = ArrayImgs.ints( Intervals.dimensionsAsLongArray( image ) );
+		ConnectedComponents.labelAllConnectedComponents( image, output, ConnectedComponents.StructuringElement.FOUR_CONNECTED );
+		// count components = maximum
+		int max = 0;
+		for( IntType pixel : output )
+			max = Math.max( max, pixel.getInteger() );
+		// output maximum
+		System.out.println(max);
 	}
 
 	private static <T extends NumericType<T> & NativeType<T>> Img< T > openImage( String path )

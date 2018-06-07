@@ -26,9 +26,9 @@ public class Gradient
 		final RandomAccessibleInterval< UnsignedByteType > front = Views.interval( Views.extendBorder( image ), Intervals.translate( result, 1, 0 ) );
 		// Beginning of the exercise:
 		// Use LoopBuilder to calculate result = front - image;
-		LoopBuilder.setImages( result, front, image ).forEachPixel( ( r, f, c ) -> {
-			r.setInteger( f.getInteger() - c.getInteger() );
-		} );
+
+
+
 		// End of the exercise
 		// show
 		ImageJFunctions.show( result );

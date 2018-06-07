@@ -23,17 +23,15 @@ public class CountConnectedComponents
 		final Img< UnsignedByteType > image = openImage( path );
 		// show
 		ImageJFunctions.show( image );
-		// threshold
-		image.forEach( pixel -> pixel.setInteger( pixel.getInteger() < 127 ? 255 : 0 ) );
-		// connected components
-		Img< IntType > output = ArrayImgs.ints( Intervals.dimensionsAsLongArray( image ) );
-		ConnectedComponents.labelAllConnectedComponents( image, output, ConnectedComponents.StructuringElement.FOUR_CONNECTED );
-		// count components = maximum
-		int max = 0;
-		for( IntType pixel : output )
-			max = Math.max( max, pixel.getInteger() );
-		// output maximum
-		System.out.println(max);
+		// Beginning of the exercise
+
+		// 1. Threshold image (maybe use LoopBuilder)
+
+		// 2. Calculate connected components on the binary image (Use class ConnectedComponents)
+
+		// 3. Count connected components
+
+		// 4. print number of connected components
 	}
 
 	private static <T extends NumericType<T> & NativeType<T>> Img< T > openImage( String path )

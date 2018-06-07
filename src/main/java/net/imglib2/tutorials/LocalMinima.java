@@ -30,7 +30,6 @@ import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
-import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.Views;
 import org.scijava.command.Command;
 import org.scijava.convert.ConvertService;
@@ -65,7 +64,7 @@ public class LocalMinima< T extends RealType<T> > implements Command
 	{
 		// blur
 		final Img< DoubleType > blurred = ArrayImgs.doubles( Intervals.dimensionsAsLongArray(input) );
-		Gauss3.gauss(sigma, Views.extendBorder(input), blurred);
+		Gauss3.gauss(8, Views.extendBorder(input), blurred);
 		// create shape
 		Shape shape = new HyperSphereShape( radius );
 		// calculate minima
@@ -78,14 +77,16 @@ public class LocalMinima< T extends RealType<T> > implements Command
 	{
 		List< Point > points = new ArrayList<>();
 		// Beginning of the exercise:
-		// 1. Get an infinite input image by using Views.extendBorder
-		RandomAccessible< DoubleType > extended = null;
-		// 2. On the infinite input image use shape.neighborhoods... to get an image with pixel type "Neighborhood".
-		RandomAccessible<Neighborhood<DoubleType>> neighborhoods = null;
-		// 3. For each pixel in the image:
-		//    Check if the pixel value is smaller than all neighborhood pixel values.
-		//    If this is the case, add the position to "points".
+		// Fill the list "points" with local minima points.
+		RandomAccessible<Neighborhood<DoubleType>> neighborhoods = shape.neighborhoodsRandomAccessible( Views.extendBorder( blurred ) );
+		RandomAccessibleInterval<Neighborhood<DoubleType>> neighborhoodsInterval = Views.interval( neighborhoods, blurred );
 
+		LoopBuilder.setImages( neighborhoodsInterval, blurred ).forEachPixel(
+				(neighborhood, center) -> {
+					if( isCenterSmallest( center, neighborhood ) )
+						points.add(new Point(neighborhood));
+				}
+		);
 		// End fo the exercise
 		return points;
 	}
